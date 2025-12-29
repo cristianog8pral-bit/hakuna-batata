@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hakuna Batata - Delivery</title>
+    <style>
+        /* ESTILO DO APLICATIVO (CSS) */
+        body { font-family: sans-serif; margin: 0; padding: 0; background: #fdf2e9; }
+        .app { max-width: 500px; margin: auto; background: white; min-height: 100vh; position: relative; padding-bottom: 100px; }
+        
+        #banner-box { width: 100%; height: 180px; background: #e67e22; position: relative; overflow: hidden; }
+        #banner-img { width: 100%; height: 100%; object-fit: cover; }
+        .btn-foto { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; padding: 10px; border-radius: 50%; cursor: pointer; }
+
+        .p-20 { padding: 20px; }
+        h1 { color: #d35400; text-align: center; margin: 10px 0; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; font-size: 13px; color: #d35400; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+
+        .categoria { background: #eee; padding: 10px; font-weight: bold; margin-top: 20px; border-radius: 5px; }
+        .item { display: flex; justify-content: space-between; align-items: center; padding: 15px 5px; border-bottom: 1px solid #f0f0f0; }
+        .btn-add { background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        .footer { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: #d35400; color: white; padding: 20px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 10px rgba(0,0,0,0.1); }
+        .btn-enviar { background: white; color: #d35400; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div id="banner-box">
+        <span class="btn-foto" onclick="document.getElementById('file').click()">📷</span>
+        <img id="banner-img" src="https://via.placeholder.com/500x180?text=Hakuna+Batata+Banner">
+        <input type="file" id="file" style="display:none" onchange="trocarBanner(this)">
+    </div>
+
+    <div class="p-20">
+        <h1>Hakuna Batata 🍟</h1>
+        <p id="boas-vindas" style="text-align: center;">Olá! Identifique-se abaixo:</p>
+
+        <div class="input-group">
+            <label>NOME DE USUÁRIO:</label>
+            <input type="text" id="nome" placeholder="Seu nome" oninput="atualizarMensagem()">
+        </div>
+        <div class="input-group">
+            <label>WHATSAPP:</label>
+            <input type="tel" id="tel" placeholder="(00) 00000-0000">
+        </div>
+        <div class="input-group">
+            <label>ENDEREÇO COMPLETO:</label>
+            <input type="text" id="end" placeholder="Rua, número, bairro">
+        </div>
+
+        <div class="categoria">🌭 HOT DOGS</div>
+        <div class="item">Dog Simples - R$ 10,00 <button class="btn-add" onclick="add('Dog Simples', 10)">+</button></div>
+        <div class="item">Dog Especial - R$ 15,00 <button class="btn-add" onclick="add('Dog Especial', 15)">+</button></div>
+        <div class="item">Dog Louco - R$ 18,00 <button class="btn-add" onclick="add('Dog Louco', 18)">+</button></div>
+
+        <div class="categoria">🍔 X-BURGS</div>
+        <div class="item">XBurguer - R$ 15,00 <button class="btn-add" onclick="add('XBurguer', 15)">+</button></div>
+        <div class="item">XBacon - R$ 18,00 <button class="btn-add" onclick="add('XBacon', 18)">+</button></div>
+        <div class="item">XEgg - R$ 15,00 <button class="btn-add" onclick="add('XEgg', 15)">+</button></div>
+        <div class="item">XSalada - R$ 15,00 <button class="btn-add" onclick="add('XSalada', 15)">+</button></div>
+        <div class="item">XCalabresa - R$ 18,00 <button class="btn-add" onclick="add('XCalabresa', 18)">+</button></div>
+        <div class="item">XTudo - R$ 20,00 <button class="btn-add" onclick="add('XTudo', 20)">+</button></div>
+        <div class="item">XHakuna - R$ 25,00 <button class="btn-add" onclick="add('XHakuna', 25)">+</button></div>
+        <div class="item">XHakuna Batata - R$ 30,00 <button class="btn-add" onclick="add('XHakuna Batata', 30)">+</button></div>
+
+        <div class="categoria">🥤 REFRIGERANTES</div>
+        <div class="item">Coca Cola Lata - R$ 5,00 <button class="btn-add" onclick="add('Coca Lata', 5)">+</button></div>
+        <div class="item">Coca Cola 2L - R$ 15,00 <button class="btn-add" onclick="add('Coca 2L', 15)">+</button></div>
+        <div class="item">Guaraná Antártica Lata - R$ 4,00 <button class="btn-add" onclick="add('Guaraná Lata', 4)">+</button></div>
+        <div class="item">Guaraná Kuat 2L - R$ 10,00 <button class="btn-add" onclick="add('Kuat 2L', 10)">+</button></div>
+    </div>
+
+    <div class="footer">
+        <div>Total: <b>R$ <span id="total-txt">0,00</span></b></div>
+        <button class="btn-enviar" onclick="enviarWhats()">Enviar Pedido</button>
+    </div>
+</div>
+
+<script>
+    // LÓGICA DO SISTEMA (JAVASCRIPT)
+    let total = 0;
+    let pedido = [];
+    
+    // CONFIGURAÇÃO: Coloque seu número aqui (com 55 + DDD)
+    const SEU_WHATSAPP = "5511999999999"; 
+
+    function atualizarMensagem() {
+        const n = document.getElementById('nome').value;
+        document.getElementById('boas-vindas').innerText = n ? `Bem-vindo, ${n}! Hakuna Batata agradece.` : "Bem-vindo ao Hakuna Batata!";
+    }
+
+    function trocarBanner(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => document.getElementById('banner-img').src = e.target.result;
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function add(item, preco) {
+        total += preco;
+        pedido.push(item);
+        document.getElementById('total-txt').innerText = total.toFixed(2).replace('.', ',');
+    }
+
+    function enviarWhats() {
+        const nome = document.getElementById('nome').value;
+        const tel = document.getElementById('tel').value;
+        const end = document.getElementById('end').value;
+
+        if(!nome || !end || pedido.length === 0) {
+            alert("Preencha Nome, Endereço e escolha ao menos 1 item!");
+            return;
+        }
+
+        let texto = `*PEDIDO HAKUNA BATATA*%0A%0A`;
+        texto += `*Cliente:* ${nome}%0A`;
+        texto += `*Contato:* ${tel}%0A`;
+        texto += `*Endereço:* ${end}%0A%0A`;
+        texto += `*ITENS:*%0A- ${pedido.join('%0A- ')}%0A%0A`;
+        texto += `*TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*`;
+
+        window.open(`https://api.whatsapp.org/send?phone=${SEU_WHATSAPP}&text=${texto}`);
+    }
+</script>
+
+</body>
+</html>
