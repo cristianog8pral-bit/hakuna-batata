@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Troco Ultra Realista</title>
+    <link href="https://fonts.cdnfonts.com/css/digital-numbers" rel="stylesheet">
+    
+    <style>
+        :root {
+            --body-grad: linear-gradient(145deg, #323d4b, #1a2029);
+            --accent: #00ff88;
+            --button-red: #d32f2f;
+        }
+
+        body {
+            background-color: #0d1117;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            color: #fff;
+        }
+
+        /* Tela de Login */
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: #0d1117;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: var(--body-grad);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 10px 10px 20px #05070a, -5px -5px 15px rgba(255,255,255,0.02);
+            text-align: center;
+            width: 80%;
+            max-width: 320px;
+        }
+
+        /* Estrutura da Calculadora */
+        .calc-case {
+            background: var(--body-grad);
+            width: 100%;
+            max-width: 380px;
+            padding: 30px;
+            border-radius: 40px;
+            box-shadow: 20px 20px 60px #05070a, -10px -10px 30px rgba(255,255,255,0.02);
+            border: 1px solid #1a1a1a;
+            display: none;
+        }
+
+        /* Visor LCD Realista */
+        .lcd-screen {
+            background: #12151a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 4px solid #000;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.8);
+            text-align: right;
+            position: relative;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #444;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        #welcome-text {
+            color: var(--accent);
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            opacity: 0.8;
+        }
+
+        #totalTroco {
+            color: var(--accent);
+            font-family: 'Digital Numbers', sans-serif;
+            font-size: 42px;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.4));
+        }
+
+        /* Inputs e Botões */
+        .input-group { margin-bottom: 20px; }
+        label { color: #5d6d7e; font-size: 10px; font-weight: 800; display: block; margin-bottom: 8px; }
+
+        input {
+            width: 100%;
+            background: #1a1f26;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 20px;
+            box-shadow: inset 4px 4px 8px #0d1117;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .btn-container { display: grid; grid-template-columns: 1fr 2fr; gap: 15px; margin-top: 25px; }
+
+        .btn {
+            padding: 20px;
+            border: none;
+            border-radius: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .btn-clear { background: linear-gradient(145deg, #ff3333, #b32424); color: white; box-shadow: 5px 5px 10px #0a0c10; }
+        .btn-calc { background: linear-gradient(145deg, #00ff88, #00b35f); color: #05070a; box-shadow: 5px 5px 10px #0a0c10; }
+        .btn:active { transform: scale(0.96); box-shadow: inset 2px 2px 5px #000; }
+
+        .results-list { margin-top: 25px; max-height: 160px; overflow-y: auto; }
+        .item-card {
+            display: flex; justify-content: space-between;
+            background: rgba(0,0,0,0.3); padding: 12px;
+            margin-bottom: 8px; border-radius: 10px; font-size: 13px;
+        }
+        .item-qtd { color: var(--accent); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-box">
+        <h2 style="font-size: 18px; letter-spacing: 2px;">LOGIN OPERADOR</h2>
+        <input type="text" id="userInput" placeholder="Seu Nome..." style="text-align: center; margin: 20px 0;">
+        <button class="btn btn-calc" style="width: 100%;" onclick="autenticar()">INICIAR TURNO</button>
+    </div>
+</div>
+
+<div class="calc-case" id="app">
+    <div class="lcd-screen">
+        <div class="status-bar">
+            <span id="header-name">AGUARDANDO...</span>
+            <span>ONLINE</span>
+        </div>
+        <div id="totalTroco">0.00</div>
+        <div id="welcome-text">SISTEMA INICIALIZADO</div>
+    </div>
+
+    <div class="input-group">
+        <label>TOTAL VENDA (R$)</label>
+        <input type="number" id="venda" step="0.01" inputmode="decimal" placeholder="0.00">
+    </div>
+
+    <div class="input-group">
+        <label>RECEBIDO (R$)</label>
+        <input type="number" id="pago" step="0.01" inputmode="decimal" placeholder="0.00">
+    </div>
+
+    <div class="btn-container">
+        <button class="btn btn-clear" onclick="reset()">AC</button>
+        <button class="btn btn-calc" onclick="calcular()">EFETUAR CÁLCULO</button>
+    </div>
+
+    <div class="results-list" id="listaItens"></div>
+</div>
+
+<script>
+    window.onload = () => {
+        const user = localStorage.getItem('calc_user');
+        if(user) mostrarApp(user);
+    }
+
+    function autenticar() {
+        const nome = document.getElementById('userInput').value;
+        if(!nome) return alert("Digite seu nome!");
+        localStorage.setItem('calc_user', nome);
+        mostrarApp(nome);
+    }
+
+    function mostrarApp(nome) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('header-name').innerText = `OP: ${nome.toUpperCase()}`;
+        
+        const hora = new Date().getHours();
+        let saudacao = "BOM DIA";
+        if(hora >= 12 && hora < 18) saudacao = "BOA TARDE";
+        if(hora >= 18 || hora < 5) saudacao = "BOA NOITE";
+        
+        document.getElementById('welcome-text').innerText = `${saudacao}, ${nome.toUpperCase()}!`;
+    }
+
+    function calcular() {
+        const v = parseFloat(document.getElementById('venda').value) || 0;
+        const p = parseFloat(document.getElementById('pago').value) || 0;
+        let centavos = Math.round(p * 100) - Math.round(v * 100);
+
+        const display = document.getElementById('totalTroco');
+        const welcome = document.getElementById('welcome-text');
+        const lista = document.getElementById('listaItens');
+        
+        lista.innerHTML = '';
+
+        if (centavos < 0) {
+            display.innerText = "ERRO";
+            welcome.innerText = "VALOR PAGO INSUFICIENTE";
+            return;
+        }
+
+        display.innerText = (centavos / 100).toFixed(2);
+        welcome.innerText = "TROCO CALCULADO COM SUCESSO";
+
+        const unidades = [
+            {v: 10000, n: "Notas de 100"}, {v: 5000, n: "Notas de 50"},
+            {v: 2000, n: "Notas de 20"}, {v: 1000, n: "Notas de 10"},
+            {v: 500, n: "Notas de 5"}, {v: 200, n: "Notas de 2"},
+            {v: 100, n: "Moeda de 1.00"}, {v: 50, n: "Moeda de 0.50"},
+            {v: 25, n: "Moeda de 0.25"}, {v: 10, n: "Moeda de 0.10"},
+            {v: 5, n: "Moeda de 0.05"}, {v: 1, n: "Moeda de 0.01"}
+        ];
+
+        unidades.forEach(u => {
+            const qtd = Math.floor(centavos / u.v);
+            if (qtd > 0) {
+                lista.innerHTML += `<div class="item-card"><span>${u.n}</span><span class="item-qtd">${qtd} UN</span></div>`;
+                centavos %= u.v;
+            }
+        });
+    }
+
+    function reset() {
+        document.getElementById('venda').value = '';
+        document.getElementById('pago').value = '';
+        document.getElementById('totalTroco').innerText = '0.00';
+        document.getElementById('listaItens').innerHTML = '';
+        
+        const user = localStorage.getItem('calc_user');
+        document.getElementById('welcome-text').innerText = `SISTEMA PRONTO - ${user.toUpperCase()}`;
+        document.getElementById('venda').focus();
+    }
+</script>
+
+</body>
+</html>
